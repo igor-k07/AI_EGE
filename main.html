@@ -517,16 +517,23 @@
           if (hasCompletedWelcome) {
             showPage("home");
           } else {
-            const header = document.querySelector("header");
-            if (header) header.style.display = "none";
-            const aside = document.querySelector("aside");
-            if (aside) aside.style.display = "none";
-            if (aiInputContainer) aiInputContainer.style.display = "none";
-            if (mainContent) {
-              mainContent.className = "ml-0 pt-0 p-0";
-              mainContent.style.height = "100vh";
+            // Перенаправляем на страницу выбора предметов при первом входе
+            try {
+              window.location.replace("pages/subjects.html");
+              return;
+            } catch (e) {
+              // fallback — встроенная загрузка subjects как запасной вариант
+              const header = document.querySelector("header");
+              if (header) header.style.display = "none";
+              const aside = document.querySelector("aside");
+              if (aside) aside.style.display = "none";
+              if (aiInputContainer) aiInputContainer.style.display = "none";
+              if (mainContent) {
+                mainContent.className = "ml-0 pt-0 p-0";
+                mainContent.style.height = "100vh";
+              }
+              showPage("subjects");
             }
-            showPage("welcome");
           }
 
           // dropdowns

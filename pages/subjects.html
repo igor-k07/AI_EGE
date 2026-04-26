@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Выбор предметов — AI.EGE</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans:wght@400;700&display=swap&subset=cyrillic"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --bg: #0b1117;
+        --surface: #0f1720;
+        --text: #c9d1d9;
+        --muted: #8b949e;
+        --primary: #6f42c1;
+        --border: #21262d;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Noto Sans", Inter, system-ui;
+        padding: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card {
+        width: 100%;
+        max-width: 1000px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+      }
+      .subject {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        cursor: pointer;
+      }
+      .subject.selected {
+        background: linear-gradient(
+          180deg,
+          rgba(111, 66, 193, 0.06),
+          transparent
+        );
+        border-color: rgba(111, 66, 193, 0.16);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: linear-gradient(90deg, var(--primary), #5b21b6);
+        color: white;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 800">
+        Выберите предметы для подготовки
+      </h1>
+      <p style="margin: 0 0 18px 0; color: var(--muted)">
+        Выберите один или несколько предметов. После этого вы сможете задать для
+        каждого предмета целевой балл и режим пробника.
+      </p>
+
+      <div
+        id="grid"
+        style="
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          margin-top: 12px;
+        "
+      ></div>
+
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 18px;
+          flex-wrap: wrap;
+          gap: 12px;
+        "
+      >
+        <div style="color: var(--muted)">
+          Выбрано: <span id="count">0</span>
+        </div>
+        <div>
+          <button id="clear" class="btn">Очистить</button>
+          <button id="next" class="btn btn-primary">Далее</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SUBJECTS = [
+        {
+          id: "math_profile",
+          name: "Математика (профиль)",
+          icon: "fa-square-root-variable",
+        },
+        {
+          id: "math_basic",
+          name: "Математика (базовый)",
+          icon: "fa-superscript",
+        },
+        { id: "russian", name: "Русский язык", icon: "fa-pen-nib" },
+        { id: "informatics", name: "Информатика", icon: "fa-laptop-code" },
+        { id: "physics", name: "Физика", icon: "fa-atom" },
+        { id: "chemistry", name: "Химия", icon: "fa-vial" },
+        { id: "biology", name: "Биология", icon: "fa-dna" },
+        { id: "history", name: "История", icon: "fa-landmark" },
+        { id: "society", name: "Обществознание", icon: "fa-users" },
+        { id: "english", name: "Английский", icon: "fa-language" },
+      ];
+
+      function render() {
+        const grid = document.getElementById("grid");
+        grid.innerHTML = "";
+        SUBJECTS.forEach((s) => {
+          const d = document.createElement("div");
+          d.className = "subject";
+          d.dataset.id = s.id;
+          d.innerHTML = `<i class="fa-solid ${s.icon} fa-2x" style="margin-bottom:8px;color:var(--muted)"></i><div style="font-weight:700;text-align:center">${s.name}</div>`;
+          d.addEventListener("click", () => {
+            d.classList.toggle("selected");
+            updateCount();
+          });
+          grid.appendChild(d);
+        });
+        try {
+          const saved = JSON.parse(
+            localStorage.getItem("initialSubjects") || "[]",
+          );
+          saved.forEach((id) => {
+            const el = document.querySelector('.subject[data-id="' + id + '"]');
+            if (el) el.classList.add("selected");
+          });
+          updateCount();
+        } catch (e) {}
+      }
+      function updateCount() {
+        document.getElementById("count").textContent =
+          document.querySelectorAll(".subject.selected").length;
+      }
+      document.getElementById("clear").addEventListener("click", () => {
+        document
+          .querySelectorAll(".subject.selected")
+          .forEach((el) => el.classList.remove("selected"));
+        updateCount();
+      });
+      document.getElementById("next").addEventListener("click", () => {
+        const chosen = Array.from(
+          document.querySelectorAll(".subject.selected"),
+        ).map((el) => el.dataset.id);
+        if (chosen.length === 0) {
+          alert("Пожалуйста, выберите хотя бы один предмет.");
+          return;
+        }
+        try {
+          localStorage.setItem("initialSubjects", JSON.stringify(chosen));
+          localStorage.setItem("welcomeQueue", JSON.stringify(chosen));
+        } catch (e) {}
+        const first = chosen[0];
+        window.location.href = `subject-config.html?id=${encodeURIComponent(first)}`;
+      });
+      render();
+    </script>
+  </body>
+</html>
