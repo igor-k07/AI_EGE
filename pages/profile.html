@@ -1,0 +1,195 @@
+<!-- Подключаем Chart.js для красивых диаграмм -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="space-y-12">
+  <!-- Секция с основной информацией -->
+  <div class="flex items-center gap-8">
+    <div
+      class="relative w-32 h-32 rounded-full border-4 border-blue-500/50 p-1 bg-slate-800 shadow-lg shadow-blue-500/20"
+    >
+      <img
+        src="https://ui-avatars.com/api/?name=Alex+I&background=1e293b&color=3b82f6&bold=true&size=128"
+        class="w-full h-full rounded-full"
+        alt="avatar"
+      />
+      <div
+        class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs font-black px-3 py-1 rounded-full border-4 border-slate-900"
+      >
+        LVL 12
+      </div>
+    </div>
+    <div>
+      <h2 class="text-4xl font-extrabold">Александр И.</h2>
+      <p class="text-lg text-blue-400 font-bold">MMR: 1,450</p>
+      <div class="mt-4 flex gap-2">
+        <button
+          class="bg-slate-700 hover:bg-slate-600 text-sm font-bold py-2 px-4 rounded-lg btn-interact"
+        >
+          <i class="fa-solid fa-gear mr-2"></i>Настройки
+        </button>
+        <button
+          class="bg-red-600/20 hover:bg-red-600/40 text-red-400 text-sm font-bold py-2 px-4 rounded-lg btn-interact"
+        >
+          Выйти
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Секция статистики -->
+  <div>
+    <h3 class="text-2xl font-bold mb-6">Статистика успеваемости</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div
+        class="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl text-center"
+      >
+        <p class="text-sm text-slate-400 mb-2">Решено задач</p>
+        <p class="text-4xl font-black text-green-500">248</p>
+      </div>
+      <div
+        class="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl text-center"
+      >
+        <p class="text-sm text-slate-400 mb-2">Пробников пройдено</p>
+        <p class="text-4xl font-black text-blue-500">5</p>
+      </div>
+      <div
+        class="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl text-center"
+      >
+        <p class="text-sm text-slate-400 mb-2">Побед на арене</p>
+        <p class="text-4xl font-black text-orange-500">12</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Секция с диаграммами -->
+  <div>
+    <h3 class="text-2xl font-bold mb-6">Анализ прогресса</h3>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div
+        class="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl h-[300px]"
+      >
+        <canvas id="progressChart"></canvas>
+      </div>
+      <div
+        class="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl h-[300px]"
+      >
+        <canvas id="errorsChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Настройка глобальных параметров для Chart.js
+  Chart.defaults.color = "#94a3b8";
+  Chart.defaults.font.family = "'Onest', sans-serif";
+
+  // Диаграмма прогресса по темам
+  const progressCtx = document.getElementById("progressChart");
+  if (progressCtx) {
+    new Chart(progressCtx, {
+      type: "radar",
+      data: {
+        labels: [
+          "Алгебра",
+          "Геометрия",
+          "Стереометрия",
+          "Теория вер.",
+          "Уравнения",
+        ],
+        datasets: [
+          {
+            label: "Уровень освоения",
+            data: [85, 70, 55, 90, 78],
+            fill: true,
+            backgroundColor: "rgba(59, 130, 246, 0.2)",
+            borderColor: "rgb(59, 130, 246)",
+            pointBackgroundColor: "rgb(59, 130, 246)",
+            pointBorderColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgb(59, 130, 246)",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          title: {
+            display: true,
+            text: "Прогресс по темам",
+            color: "#f1f5f9",
+            font: {
+              size: 16,
+              weight: "bold",
+            },
+          },
+        },
+        scales: {
+          r: {
+            angleLines: {
+              color: "rgba(255, 255, 255, 0.1)",
+            },
+            grid: {
+              color: "rgba(255, 255, 255, 0.1)",
+            },
+            pointLabels: {
+              font: {
+                size: 12,
+                weight: "bold",
+              },
+            },
+            ticks: {
+              backdropColor: "transparent",
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // Диаграмма типов ошибок
+  const errorsCtx = document.getElementById("errorsChart");
+  if (errorsCtx) {
+    new Chart(errorsCtx, {
+      type: "doughnut",
+      data: {
+        labels: ["Вычислительные", "Логические", "По невнимательности"],
+        datasets: [
+          {
+            label: "Кол-во ошибок",
+            data: [12, 5, 8],
+            backgroundColor: [
+              "rgb(239, 68, 68)",
+              "rgb(249, 115, 22)",
+              "rgb(234, 179, 8)",
+            ],
+            hoverOffset: 4,
+            borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "Распределение ошибок",
+            color: "#f1f5f9",
+            font: {
+              size: 16,
+              weight: "bold",
+            },
+          },
+        },
+      },
+    });
+  }
+</script>

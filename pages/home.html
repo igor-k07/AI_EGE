@@ -1,0 +1,118 @@
+<div class="w-full">
+  <h1 class="text-4xl font-black mb-2">Выбор предмета</h1>
+  <p class="text-slate-400 mb-10">
+    Выберите предмет, чтобы перейти к заданиям.
+  </p>
+
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+    id="subjects-grid"
+  >
+    <!-- Card 1: Математика -->
+    <div
+      class="bg-slate-800/50 border border-slate-700 p-8 rounded-[2rem] hover:border-blue-500/50 transition-all cursor-pointer"
+      onclick="selectSubject('math', 'Математика (Профиль)')"
+    >
+      <div class="flex justify-between mb-6">
+        <i class="fa-solid fa-infinity text-3xl text-blue-500"></i>
+        <span
+          class="text-xs bg-slate-700 px-3 py-1 rounded-full font-bold uppercase tracking-widest text-blue-400"
+          >ВЫБРАН</span
+        >
+      </div>
+      <h3 class="text-xl font-extrabold mb-2">Математика (Профиль)</h3>
+      <p class="text-slate-400 text-sm mb-8">
+        Нажмите, чтобы перейти к подготовке по этому предмету.
+      </p>
+      <button
+        class="w-full bg-blue-600 py-4 rounded-2xl font-black btn-interact"
+      >
+        ПЕРЕЙТИ
+      </button>
+    </div>
+
+    <!-- Card 2: Русский язык -->
+    <div
+      class="bg-slate-800/50 border border-slate-700 p-8 rounded-[2rem] hover:border-red-500/50 transition-all cursor-pointer"
+      onclick="selectSubject('russian', 'Русский язык')"
+    >
+      <div class="flex justify-between mb-6">
+        <i class="fa-solid fa-pen-nib text-3xl text-red-500"></i>
+        <span
+          class="text-xs bg-slate-700 px-3 py-1 rounded-full font-bold uppercase tracking-widest text-red-400"
+          >ДОСТУПНО</span
+        >
+      </div>
+      <h3 class="text-xl font-extrabold mb-2">Русский язык</h3>
+      <p class="text-slate-400 text-sm mb-8">
+        Нажмите, чтобы перейти к подготовке по этому предмету.
+      </p>
+      <button
+        class="w-full bg-red-600 py-4 rounded-2xl font-black btn-interact"
+      >
+        ПЕРЕЙТИ
+      </button>
+    </div>
+
+    <!-- Card 3: Информатика -->
+    <div
+      class="bg-slate-800/50 border border-slate-700 p-8 rounded-[2rem] hover:border-indigo-500/50 transition-all cursor-pointer"
+      onclick="selectSubject('cs', 'Информатика')"
+    >
+      <div class="flex justify-between mb-6">
+        <i class="fa-solid fa-laptop-code text-3xl text-indigo-500"></i>
+        <span
+          class="text-xs bg-slate-700 px-3 py-1 rounded-full font-bold uppercase tracking-widest text-indigo-400"
+          >ДОСТУПНО</span
+        >
+      </div>
+      <h3 class="text-xl font-extrabold mb-2">Информатика</h3>
+      <p class="text-slate-400 text-sm mb-8">
+        Нажмите, чтобы перейти к подготовке по этому предмету.
+      </p>
+      <button
+        class="w-full bg-indigo-600 py-4 rounded-2xl font-black btn-interact"
+      >
+        ПЕРЕЙТИ
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.selectSubject = function selectSubject(subjectId, subjectName) {
+    const subjectNameEl = document.getElementById("current-subject-name");
+    if (subjectNameEl) {
+      subjectNameEl.textContent = subjectName;
+    }
+    // Сохраняем текущий предмет и переходим на roadmap
+    try {
+      localStorage.setItem("currentSubject", subjectId);
+    } catch (e) {}
+    if (typeof showPage === "function") showPage("roadmap");
+  };
+
+  // Делегирование кликов для кнопок внутри карточек — избегаем eval
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".btn-interact");
+    if (!btn) return;
+    const card = btn.closest("[onclick]");
+    if (!card) return;
+    const onclick = card.getAttribute("onclick") || "";
+    if (!onclick.includes("selectSubject")) return;
+    // ожидаемый формат: selectSubject('id', 'Name')
+    const m = onclick.match(
+      /selectSubject\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\s*\)/,
+    );
+    if (m) {
+      try {
+        const id = m[1];
+        const name = m[2];
+        if (typeof window.selectSubject === "function")
+          window.selectSubject(id, name);
+      } catch (err) {
+        /* ignore */
+      }
+    }
+  });
+</script>

@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ru" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI.EGE</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --bg-main: #0b1220;
+        --text-main: #e6eef8;
+        --primary: #3b82f6;
+      }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        overflow-x: hidden;
+      }
+
+      /* Кликабельность и анимации */
+      .btn-interact {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .btn-interact:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+      }
+      .btn-interact:active {
+        transform: translateY(0) scale(0.95);
+      }
+
+      /* Состояния Roadmap */
+      .node {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 10;
+        cursor: pointer;
+        border: 4px solid var(--bg-main);
+        transition: 0.3s;
+      }
+      .node-done {
+        background: #22c55e;
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+      }
+      .node-active {
+        background: var(--primary);
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+        animation: pulse-ring 2s infinite;
+      }
+      .node-locked {
+        background: #334155;
+        color: #64748b;
+        cursor: not-allowed;
+      }
+
+      @keyframes pulse-ring {
+        0% {
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        }
+      }
+
+      /* Dropdown Menu */
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .subject-dropdown .dropdown-content {
+        left: 0;
+        right: auto;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: #1e293b;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.5);
+        z-index: 1;
+        border-radius: 1rem;
+        border: 1px solid #334155;
+        padding: 8px;
+        margin-top: 12px;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition:
+          opacity 0.2s ease-out,
+          transform 0.2s ease-out;
+      }
+
+      .dropdown-content a {
+        color: #f1f5f9;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #334155;
+      }
+
+      .dropdown-content.show {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .dropdown-content .separator {
+        height: 1px;
+        background-color: #334155;
+        margin: 8px 0;
+      }
+
+      .dropdown-content a.logout {
+        color: #f43f5e;
+      }
+      .dropdown-content a.logout:hover {
+        background-color: rgba(244, 63, 94, 0.1);
+      }
+
+      .nav-link.active {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--primary);
+        border-right: 4px solid var(--primary);
+        opacity: 1 !important;
+      }
+
+      /* Поле ввода ИИ */
+      .ai-input-wrapper {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+    </style>
+  </head>
+  <body class="pb-32">
+    <header
+      class="fixed top-0 w-full border-b border-slate-800 z-50 px-8 py-4 flex justify-between items-center backdrop-blur-xl bg-slate-900/60"
+    >
+      <div class="flex items-center gap-6">
+        <div
+          class="text-2xl font-black tracking-tighter text-blue-500 cursor-pointer"
+          onclick="showPage('home')"
+        >
+          AI.EGE
+        </div>
+        <div class="dropdown subject-dropdown">
+          <div
+            id="subject-switcher"
+            class="hidden md:flex items-center gap-2 px-4 py-1.5 bg-slate-800 rounded-full border border-slate-700 text-xs font-bold cursor-pointer"
+          >
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span id="current-subject-name">Математика Профиль</span>
+            <i class="fa-solid fa-chevron-down text-slate-500 ml-1"></i>
+          </div>
+          <div class="dropdown-content">
+            <a href="#" onclick="switchSubject(event, 'Математика (Профиль)')"
+              >Математика (Профиль)</a
+            >
+            <a href="#" onclick="switchSubject(event, 'Русский язык')"
+              >Русский язык</a
+            >
+            <a href="#" onclick="switchSubject(event, 'Информатика')"
+              >Информатика</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="dropdown">
+          <div
+            class="flex items-center gap-4 cursor-pointer"
+            id="profile-trigger"
+          >
+            <div class="text-right mr-2 hidden sm:block">
+              <p class="text-sm font-extrabold">Александр И.</p>
+              <p
+                class="text-[10px] font-black text-blue-400 uppercase tracking-widest"
+              >
+                MMR: 1,450
+              </p>
+            </div>
+            <div
+              class="w-12 h-12 rounded-2xl border-2 border-blue-500/30 p-0.5 bg-slate-800 btn-interact shadow-lg shadow-blue-500/10"
+            >
+              <img
+                src="https://ui-avatars.com/api/?name=Alex+I&background=1e293b&color=3b82f6&bold=true"
+                class="w-full h-full rounded-xl"
+                alt="avatar"
+              />
+            </div>
+          </div>
+          <div class="dropdown-content">
+            <div class="px-4 py-2 border-b border-slate-700 mb-2">
+              <p class="font-bold">Александр И.</p>
+              <p class="text-xs text-slate-400">LVL 12</p>
+            </div>
+            <a
+              href="#"
+              onclick="
+                event.preventDefault();
+                showPage('profile');
+              "
+            >
+              <i class="fa-solid fa-user-circle w-5"></i> Профиль
+            </a>
+            <a href="#"> <i class="fa-solid fa-gear w-5"></i> Настройки </a>
+            <div class="separator"></div>
+            <a href="#" class="logout">
+              <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Выйти
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <aside
+      class="fixed left-0 top-20 h-full w-64 border-r border-slate-800 pt-8 z-40 bg-slate-900/20"
+    >
+      <nav class="flex flex-col gap-2 px-4">
+        <button
+          onclick="showPage('roadmap')"
+          class="nav-link active btn-interact flex items-center gap-4 px-6 py-4 rounded-xl text-left"
+        >
+          <i class="fa-solid fa-diagram-project w-5"></i> <b>Roadmap</b>
+        </button>
+        <button
+          onclick="showPage('tests')"
+          class="nav-link opacity-50 btn-interact flex items-center gap-4 px-6 py-4 rounded-xl text-left"
+        >
+          <i class="fa-solid fa-file-signature w-5"></i> <b>Пробники</b>
+        </button>
+        <button
+          onclick="showPage('marathon')"
+          class="nav-link opacity-50 btn-interact flex items-center gap-4 px-6 py-4 rounded-xl text-left"
+        >
+          <i class="fa-solid fa-bolt-lightning w-5"></i> <b>Марафон</b>
+        </button>
+        <button
+          onclick="showPage('errors')"
+          class="nav-link opacity-50 btn-interact flex items-center gap-4 px-6 py-4 rounded-xl text-left"
+        >
+          <i class="fa-solid fa-triangle-exclamation w-5"></i> <b>Ошибки</b>
+        </button>
+        <button
+          onclick="showPage('home')"
+          class="nav-link opacity-50 btn-interact flex items-center gap-4 px-6 py-4 rounded-xl text-left"
+        >
+          <i class="fa-solid fa-comments w-5"></i> <b>AI Чат</b>
+        </button>
+
+        <div class="mt-8">
+          <button
+            onclick="showPage('arena')"
+            class="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/20"
+          >
+            <i class="fa-solid fa-fire"></i> АРЕНА
+          </button>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="ml-64 pt-28 p-10 min-h-screen" id="main-content">
+      <!-- Сюда будет загружаться контент страниц -->
+    </main>
+
+    <div
+      class="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[850px] px-6 z-50"
+      id="ai-input-container"
+    >
+      <!-- Chat History -->
+      <div
+        id="chat-history"
+        class="hidden mb-4 max-h-[50vh] overflow-y-auto p-4 bg-slate-800/80 backdrop-blur-lg rounded-3xl border border-slate-700"
+      >
+        <!-- Messages will be appended here -->
+        <div class="text-center text-slate-500 text-xs font-bold py-4">
+          Начните диалог с вашим AI-помощником
+        </div>
+      </div>
+
+      <div
+        class="ai-input-wrapper rounded-[2.5rem] p-2 flex items-center gap-3"
+      >
+        <button
+          class="w-12 h-12 rounded-full bg-blue-600/10 text-blue-400 btn-interact"
+        >
+          <i class="fa-solid fa-paperclip"></i>
+        </button>
+        <input
+          id="ai-input"
+          type="text"
+          class="flex-1 bg-transparent border-none outline-none text-white px-2 placeholder:text-slate-500"
+          placeholder="Спроси ИИ о задаче или загрузи фото..."
+          onfocus="toggleChat(true)"
+        />
+        <button
+          class="w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/40 btn-interact"
+          onclick="sendMessage()"
+        >
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+        <button
+          class="w-12 h-12 rounded-full bg-slate-700 text-slate-300 btn-interact"
+          onclick="showPage('home')"
+          title="Открыть полноэкранный чат"
+        >
+          <i class="fa-solid fa-expand"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="chat-overlay"></div>
+
+    <script>
+      (function () {
+        const mainContent = document.getElementById("main-content");
+        const aiInputContainer = document.getElementById("ai-input-container");
+        const aiInput = document.getElementById("ai-input");
+        const chatHistory = document.getElementById("chat-history");
+        const chatOverlay = document.getElementById("chat-overlay");
+
+        function toggleChat(show) {
+          if (show) {
+            chatHistory.classList.remove("hidden");
+            chatOverlay.classList.remove("hidden");
+            if (aiInputContainer) aiInputContainer.classList.add("z-[60]");
+          } else {
+            chatHistory.classList.add("hidden");
+            chatOverlay.classList.add("hidden");
+            if (aiInputContainer) aiInputContainer.classList.remove("z-[60]");
+          }
+        }
+
+        function createMessageElement(text, sender) {
+          const messageWrapper = document.createElement("div");
+          messageWrapper.className = `flex items-start gap-3 my-4 ${sender === "user" ? "justify-end" : ""}`;
+          const avatar = document.createElement("div");
+          avatar.className = `w-8 h-8 rounded-lg flex-shrink-0 ${sender === "user" ? "bg-blue-800" : "bg-slate-700"}`;
+          avatar.innerHTML = `<i class="fa-solid ${sender === "user" ? "fa-user" : "fa-robot"} w-full h-full flex items-center justify-center text-sm"></i>`;
+          const messageBubble = document.createElement("div");
+          messageBubble.className = `max-w-md p-4 rounded-2xl ${sender === "user" ? "bg-blue-600 rounded-br-none" : "bg-slate-700 rounded-bl-none"}`;
+          messageBubble.textContent = text;
+          if (sender === "user") {
+            messageWrapper.appendChild(messageBubble);
+            messageWrapper.appendChild(avatar);
+          } else {
+            messageWrapper.appendChild(avatar);
+            messageWrapper.appendChild(messageBubble);
+          }
+          return messageWrapper;
+        }
+
+        function sendMessage() {
+          if (!aiInput) return;
+          const text = aiInput.value.trim();
+          if (!text) return;
+          const userMessage = createMessageElement(text, "user");
+          if (chatHistory) chatHistory.appendChild(userMessage);
+          aiInput.value = "";
+          if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+          setTimeout(() => {
+            const aiResponse = createMessageElement(
+              "Анализирую: " + text,
+              "ai",
+            );
+            if (chatHistory) chatHistory.appendChild(aiResponse);
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+          }, 800);
+        }
+
+        async function showPage(pageId) {
+          if (!mainContent) return;
+          mainContent.innerHTML = `<div class="flex justify-center items-center h-full"><i class="fa-solid fa-spinner fa-spin text-4xl text-blue-500"></i></div>`;
+          try {
+            const response = await fetch(`pages/${pageId}.html`);
+            if (!response.ok)
+              throw new Error(`Страница '${pageId}.html' не найдена (404)`);
+            const html = await response.text();
+            mainContent.innerHTML = html;
+
+            // Выполняем скрипты с загруженной страницы последовательно
+            const scripts = Array.from(mainContent.querySelectorAll("script"));
+            for (const s of scripts) {
+              const parent = s.parentNode;
+              const code = s.textContent || "";
+
+              // If the script registers a DOMContentLoaded listener, extract and run its callback immediately
+              const domMatch = code.match(
+                /document\.addEventListener\(\s*['"]DOMContentLoaded['"]\s*,\s*(?:function\s*\([^)]*\)\s*\{([\s\S]*?)\}|\(\)\s*=>\s*\{([\s\S]*?)\})/,
+              );
+              if (!s.src && domMatch) {
+                const body = domMatch[1] || domMatch[2] || "";
+                try {
+                  new Function(body)();
+                } catch (ex) {
+                  console.error(
+                    "Error executing DOMContentLoaded handler from page",
+                    pageId,
+                    ex,
+                  );
+                }
+                // remove the original script node
+                parent.removeChild(s);
+                continue;
+              }
+
+              const ns = document.createElement("script");
+              for (let i = 0; i < s.attributes.length; i++) {
+                ns.setAttribute(s.attributes[i].name, s.attributes[i].value);
+              }
+              if (s.src) {
+                await new Promise((resolve) => {
+                  ns.onload = () => resolve();
+                  ns.onerror = () => resolve();
+                  parent.replaceChild(ns, s);
+                });
+              } else {
+                ns.textContent = s.textContent;
+                parent.replaceChild(ns, s);
+              }
+            }
+          } catch (err) {
+            mainContent.innerHTML = `<div class="text-center text-red-500 p-8"><strong>Ошибка загрузки страницы.</strong><br>${err.message}</div>`;
+          }
+          updateActiveNav(pageId);
+          window.scrollTo(0, 0);
+        }
+
+        function updateActiveNav(pageId) {
+          document.querySelectorAll(".nav-link").forEach((btn) => {
+            btn.classList.remove("active");
+            btn.classList.add("opacity-50");
+          });
+          // map 'home' to chat button
+          const mapTo = pageId === "home" ? "home" : pageId;
+          const target = Array.from(
+            document.querySelectorAll(".nav-link"),
+          ).find((el) => {
+            const v = el.getAttribute("onclick") || "";
+            return v.indexOf(`showPage('${mapTo}')`) !== -1;
+          });
+          if (target) {
+            target.classList.add("active");
+            target.classList.remove("opacity-50");
+          }
+          if (aiInputContainer)
+            aiInputContainer.style.display =
+              pageId === "home" ? "none" : "block";
+        }
+
+        function switchSubject(event, subjectName) {
+          if (event && event.preventDefault) event.preventDefault();
+          if (event && event.stopPropagation) event.stopPropagation();
+          const el = document.getElementById("current-subject-name");
+          if (el) el.textContent = subjectName;
+          const dd = document.querySelector(
+            ".subject-dropdown .dropdown-content",
+          );
+          if (dd) dd.classList.remove("show");
+        }
+
+        // Expose globals used by inline handlers
+        window.showPage = showPage;
+        window.toggleChat = toggleChat;
+        window.sendMessage = sendMessage;
+        window.switchSubject = switchSubject;
+
+        // init
+        document.addEventListener("DOMContentLoaded", function () {
+          const hasCompletedWelcome = localStorage.getItem("welcomeCompleted");
+          if (hasCompletedWelcome) {
+            showPage("home");
+          } else {
+            const header = document.querySelector("header");
+            if (header) header.style.display = "none";
+            const aside = document.querySelector("aside");
+            if (aside) aside.style.display = "none";
+            if (aiInputContainer) aiInputContainer.style.display = "none";
+            if (mainContent) {
+              mainContent.className = "ml-0 pt-0 p-0";
+              mainContent.style.height = "100vh";
+            }
+            showPage("welcome");
+          }
+
+          // dropdowns
+          document.querySelectorAll(".dropdown").forEach((d) => {
+            const trigger =
+              d.querySelector("#profile-trigger") ||
+              d.querySelector("#subject-switcher") ||
+              d.querySelector(":scope > div");
+            const content = d.querySelector(".dropdown-content");
+            if (trigger && content) {
+              trigger.addEventListener("click", (e) => {
+                e.stopPropagation();
+                document
+                  .querySelectorAll(".dropdown-content.show")
+                  .forEach((open) => {
+                    if (open !== content) open.classList.remove("show");
+                  });
+                content.classList.toggle("show");
+              });
+            }
+          });
+
+          window.addEventListener("click", (e) => {
+            if (!e.target.closest(".dropdown"))
+              document
+                .querySelectorAll(".dropdown-content.show")
+                .forEach((open) => open.classList.remove("show"));
+          });
+        });
+
+        // Dev: automated navigation test when ?dev=1 in URL
+        (function runDevNavTest() {
+          try {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.has("dev") || params.get("dev") !== "1") return;
+            const pages = [
+              "home",
+              "roadmap",
+              "tests",
+              "marathon",
+              "errors",
+              "profile",
+              "arena",
+              "welcome",
+            ];
+            (async function () {
+              for (const p of pages) {
+                console.log("DEV: loading", p);
+                try {
+                  await showPage(p);
+                } catch (err) {
+                  console.error("DEV: error loading", p, err);
+                }
+                await new Promise((r) => setTimeout(r, 600));
+              }
+              console.log("DEV: navigation test finished");
+            })();
+          } catch (e) {
+            /* ignore */
+          }
+        })();
+      })();
+    </script>
+  </body>
+</html>

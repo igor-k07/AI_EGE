@@ -1,0 +1,113 @@
+<div class="flex justify-between items-end mb-12">
+  <div>
+    <h2 class="text-4xl font-extrabold mb-2">Твой прогресс</h2>
+    <p class="text-slate-400 font-medium">
+      Пройди узлы, чтобы открыть новые задания
+    </p>
+  </div>
+  <div class="bg-slate-800 px-6 py-3 rounded-2xl border border-slate-700">
+    <span
+      class="text-xs text-slate-500 block uppercase font-bold tracking-tighter"
+      >Уровень</span
+    >
+    <span class="text-xl font-black text-green-500"
+      >12 <span class="text-slate-500 text-sm">/ 50</span></span
+    >
+  </div>
+</div>
+
+<div class="relative h-[500px] w-full max-w-3xl mx-auto" id="roadmap-canvas">
+  <svg
+    class="absolute inset-0 w-full h-full pointer-events-none"
+    style="z-index: 1"
+  >
+    <line
+      x1="50%"
+      y1="50"
+      x2="30%"
+      y2="180"
+      stroke="#334155"
+      stroke-width="3"
+      stroke-dasharray="8 4"
+    />
+    <line
+      x1="50%"
+      y1="50"
+      x2="70%"
+      y2="180"
+      stroke="#334155"
+      stroke-width="3"
+    />
+    <line
+      x1="70%"
+      y1="180"
+      x2="70%"
+      y2="320"
+      stroke="#334155"
+      stroke-width="3"
+    />
+  </svg>
+
+  <div
+    onclick="alert('Тема пройдена!')"
+    class="node node-done btn-interact"
+    style="
+      position: absolute;
+      left: 50%;
+      top: 15px;
+      transform: translateX(-50%);
+    "
+  >
+    <i class="fa-solid fa-check text-xl"></i>
+    <div
+      class="absolute -top-8 text-[10px] text-green-500 font-black uppercase"
+    >
+      Start
+    </div>
+  </div>
+
+  <div
+    onclick="alert('Эта ветка пока закрыта')"
+    class="node node-locked btn-interact"
+    style="
+      position: absolute;
+      left: 30%;
+      top: 180px;
+      transform: translateX(-50%);
+    "
+  >
+    <i class="fa-solid fa-lock"></i>
+    <div class="absolute top-20 text-xs font-bold text-slate-500">Алгебра</div>
+  </div>
+
+  <div
+    onclick="showPage('marathon')"
+    class="node node-active btn-interact"
+    style="
+      position: absolute;
+      left: 70%;
+      top: 180px;
+      transform: translateX(-50%);
+    "
+  >
+    <i class="fa-solid fa-star text-xl"></i>
+    <div class="absolute top-20 text-xs font-black text-blue-400">
+      Геометрия
+    </div>
+  </div>
+
+  <div
+    class="node node-locked"
+    style="
+      position: absolute;
+      left: 70%;
+      top: 320px;
+      transform: translateX(-50%);
+    "
+  >
+    <i class="fa-solid fa-lock text-sm"></i>
+    <div class="absolute top-20 text-xs font-bold text-slate-600">
+      Стереометрия
+    </div>
+  </div>
+</div>

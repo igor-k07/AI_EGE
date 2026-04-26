@@ -1,0 +1,41 @@
+<div class="w-full">
+  <div class="flex justify-between items-center mb-8">
+    <h2 class="text-3xl font-black">Марафон заданий</h2>
+    <div class="flex items-center gap-2 text-sm">
+      <span class="text-slate-400">Сортировать:</span>
+      <button class="font-bold text-blue-400">По порядку</button>
+    </div>
+  </div>
+  <div
+    class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-10 gap-4"
+    id="marathon-grid"
+  ></div>
+</div>
+<script>
+  // Этот скрипт будет выполняться при загрузке страницы марафона
+  const marathonGrid = document.getElementById("marathon-grid");
+  if (marathonGrid) {
+    marathonGrid.innerHTML = ""; // Очищаем на случай повторной загрузки
+    for (let i = 1; i <= 27; i++) {
+      // Пример для 27 заданий
+      const item = document.createElement("div");
+      const isCompleted = Math.random() > 0.5; // Случайное выполнение
+      const isCurrent = i === 13; // Пример текущего задания
+
+      let stateClasses = "bg-slate-800 border-slate-700 hover:border-blue-500";
+      if (isCompleted) {
+        stateClasses =
+          "bg-green-500/10 border-green-500/30 hover:border-green-500 text-green-400";
+      }
+      if (isCurrent) {
+        stateClasses =
+          "bg-blue-500/10 border-blue-500/30 hover:border-blue-500 text-blue-400 animate-pulse";
+      }
+
+      item.className = `border aspect-square rounded-3xl flex flex-col items-center justify-center btn-interact cursor-pointer transition-colors ${stateClasses}`;
+      item.innerHTML = `<span class="text-2xl font-black">${i}</span>`;
+      item.onclick = () => alert("Запуск тренировки задания №" + i);
+      marathonGrid.appendChild(item);
+    }
+  }
+</script>

@@ -1,0 +1,130 @@
+<!-- DB Data: table(errors) - user_id, question_id, user_answer, correct_answer, error_type -->
+<h2 class="text-3xl font-black mb-8">Работа над ошибками</h2>
+<div
+  id="errors-grid"
+  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+>
+  <!-- Ошибки будут динамически добавляться сюда -->
+</div>
+<div
+  id="no-errors-placeholder"
+  class="hidden bg-slate-800/30 border-2 border-dashed border-slate-700 rounded-[3rem] p-20 text-center"
+>
+  <i class="fa-solid fa-shield-heart text-6xl text-slate-700 mb-6"></i>
+  <p class="text-slate-400 font-bold italic">
+    Ошибок не найдено. Ты идешь на 100 баллов!
+  </p>
+</div>
+<script>
+  // Этот скрипт будет выполняться при загрузке страницы ошибок
+  const errors = [
+    {
+      id: 1,
+      task_num: 7,
+      topic: "Логарифмы",
+      error_type: "Вычислительная",
+    },
+    {
+      id: 2,
+      task_num: 12,
+      topic: "Производные",
+      error_type: "Анализ функции",
+    },
+    {
+      id: 3,
+      task_num: 5,
+      topic: "Стереометрия",
+      error_type: "Вычислительная",
+    },
+    {
+      id: 4,
+      task_num: 1,
+      topic: "Планиметрия",
+      error_type: "Логическая",
+    },
+    {
+      id: 5,
+      task_num: 10,
+      topic: "Теория вероятностей",
+      error_type: "По невнимательности",
+    },
+    {
+      id: 6,
+      task_num: 7,
+      topic: "Тригонометрия",
+      error_type: "Вычислительная",
+    },
+  ];
+
+  const errorsGrid = document.getElementById("errors-grid");
+  const noErrorsPlaceholder = document.getElementById("no-errors-placeholder");
+
+  function renderErrorCategories() {
+    if (!errorsGrid || !noErrorsPlaceholder) return;
+
+    errorsGrid.innerHTML = "";
+    if (errors.length === 0) {
+      noErrorsPlaceholder.classList.remove("hidden");
+      errorsGrid.classList.add("hidden");
+      return;
+    }
+
+    noErrorsPlaceholder.classList.add("hidden");
+    errorsGrid.classList.remove("hidden");
+
+    const groupedErrors = errors.reduce((acc, err) => {
+      if (!acc[err.error_type]) {
+        acc[err.error_type] = [];
+      }
+      acc[err.error_type].push(err);
+      return acc;
+    }, {});
+
+    for (const errorType in groupedErrors) {
+      const errorsInGroup = groupedErrors[errorType];
+      const categoryCard = document.createElement("div");
+      categoryCard.className =
+        "bg-slate-800/50 border border-slate-700 p-6 rounded-3xl flex flex-col hover:border-blue-500/50 transition-all duration-300";
+
+      const icon =
+        errorType === "Вычислительная"
+          ? "fa-calculator"
+          : errorType === "Логическая"
+            ? "fa-lightbulb"
+            : "fa-eye-slash";
+
+      categoryCard.innerHTML = `
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center">
+            <i class="fa-solid ${icon} text-xl text-blue-400"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold">${errorType}</h3>
+            <p class="text-sm text-slate-400">${errorsInGroup.length} ${
+              errorsInGroup.length === 1
+                ? "ошибка"
+                : errorsInGroup.length > 4
+                  ? "ошибок"
+                  : "ошибки"
+            }</p>
+          </div>
+        </div>
+        <div class="flex-1 mb-6">
+          <p class="text-xs text-slate-500 font-bold mb-2">Затронутые темы:</p>
+          <div class="flex flex-wrap gap-2">
+            ${[...new Set(errorsInGroup.map((e) => e.topic))]
+              .map(
+                (topic) =>
+                  `<span class="bg-slate-700/50 text-slate-300 text-[10px] font-bold px-2 py-1 rounded">${topic}</span>`,
+              )
+              .join("")}
+          </div>
+        </div>
+        <button class="w-full bg-blue-600 py-3 rounded-xl font-bold btn-interact text-sm" onclick="alert('Запуск тренировки по категории: ${errorType}')">Начать тренировку</button>
+      `;
+      errorsGrid.appendChild(categoryCard);
+    }
+  }
+
+  renderErrorCategories();
+</script>
