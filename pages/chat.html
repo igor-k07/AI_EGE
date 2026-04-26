@@ -1,0 +1,214 @@
+<div class="w-full">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-extrabold">AI Чат — Помощник по заданиям</h1>
+      <p class="text-slate-400 text-sm">
+        Пишите задачу, загружайте фото, просите подробный разбор.
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        onclick="chatClear()"
+        class="px-4 py-2 bg-slate-800 rounded-xl text-sm"
+      >
+        Очистить
+      </button>
+      <button
+        onclick="downloadChat()"
+        class="px-4 py-2 bg-slate-800 rounded-xl text-sm"
+      >
+        Скачать
+      </button>
+    </div>
+  </div>
+
+  <div class="flex gap-6">
+    <div
+      class="flex-1 bg-slate-800/60 p-6 rounded-2xl flex flex-col"
+      style="min-height: 60vh"
+    >
+      <div
+        id="chat-window"
+        class="flex-1 overflow-y-auto p-3 space-y-4 bg-slate-900 rounded-xl border border-slate-700"
+      ></div>
+
+      <div class="mt-4">
+        <textarea
+          id="chat-input-large"
+          rows="4"
+          class="w-full bg-transparent border border-slate-700 rounded-xl p-3 text-white outline-none"
+          placeholder="Опишите задачу подробно или вставьте условие/текст"
+        ></textarea>
+        <div class="flex items-center gap-3 mt-3">
+          <input id="file-input" type="file" accept="image/*" class="hidden" />
+          <button
+            onclick="document.getElementById('file-input').click()"
+            class="px-4 py-2 bg-blue-600 rounded-2xl"
+          >
+            Загрузить фото
+          </button>
+          <button
+            onclick="chatSend()"
+            class="px-4 py-2 bg-green-600 rounded-2xl"
+          >
+            Отправить
+          </button>
+          <button
+            onclick="chatExplain()"
+            class="px-4 py-2 bg-indigo-600 rounded-2xl"
+          >
+            Пошагово
+          </button>
+          <button
+            onclick="chatAnalyze()"
+            class="px-4 py-2 bg-yellow-600 rounded-2xl"
+          >
+            Разбор
+          </button>
+          <div class="ml-auto text-slate-400 text-sm">
+            AI: условная симуляция
+          </div>
+        </div>
+        <div class="text-xs text-slate-500 mt-2">
+          Подсказки: задавайте шаги, просите доказательства, просите
+          альтернативные решения.
+        </div>
+      </div>
+    </div>
+
+    <aside class="w-80 bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+      <h3 class="font-bold mb-2">Инструменты</h3>
+      <ul class="text-sm text-slate-400 space-y-2">
+        <li>• Пресеты: "Решение", "Краткий разбор", "Пошагово"</li>
+        <li>• Форматы вывода: план, подробный ответ, LaTeX</li>
+        <li>• Кнопки для копирования и скачивания</li>
+      </ul>
+      <div class="mt-4">
+        <button
+          onclick="insertPreset('solve')"
+          class="w-full mb-2 px-3 py-2 bg-slate-700 rounded-xl"
+        >
+          Пресет: Решение
+        </button>
+        <button
+          onclick="insertPreset('explain')"
+          class="w-full mb-2 px-3 py-2 bg-slate-700 rounded-xl"
+        >
+          Пресет: Пошагово
+        </button>
+        <button
+          onclick="insertPreset('short')"
+          class="w-full px-3 py-2 bg-slate-700 rounded-xl"
+        >
+          Пресет: Кратко
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    (function () {
+      const chatWindow = document.getElementById("chat-window");
+      const chatInput = document.getElementById("chat-input-large");
+      const fileInput = document.getElementById("file-input");
+
+      function appendMessage(text, who) {
+        const el = document.createElement("div");
+        el.className = who === "user" ? "text-right" : "text-left";
+        el.innerHTML = `<div class="inline-block max-w-[85%] p-3 rounded-xl ${who === "user" ? "bg-green-600 text-white" : "bg-slate-700 text-white"}">${escapeHtml(text)}</div>`;
+        chatWindow.appendChild(el);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }
+
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      window.chatSend = function chatSend() {
+        const text = (chatInput.value || "").trim();
+        if (!text) return;
+        appendMessage(text, "user");
+        chatInput.value = "";
+        // Simulated AI response
+        appendMessage("Обрабатываю задачу... Подождите.", "ai");
+        setTimeout(() => {
+          // mock response with useful features
+          appendMessage(
+            "1) Разбиваем задачу на шаги. 2) Привожу решение. 3) Короткий вывод.",
+            "ai",
+          );
+        }, 900);
+      };
+
+      window.chatExplain = function chatExplain() {
+        const text =
+          (chatInput.value || "").trim() || "Пожалуйста, разберись пошагово.";
+        appendMessage(text, "user");
+        appendMessage("Готовлю пошаговый разбор...", "ai");
+        setTimeout(() => {
+          appendMessage(
+            "Шаг 1: Анализ условий.\nШаг 2: Построение решения.\nШаг 3: Проверка.",
+            "ai",
+          );
+        }, 900);
+      };
+
+      window.chatAnalyze = function chatAnalyze() {
+        const text =
+          (chatInput.value || "").trim() || "Пожалуйста, сделай разбор.";
+        appendMessage(text, "user");
+        appendMessage("Выполняю разбор и проверки...", "ai");
+        setTimeout(() => {
+          appendMessage(
+            "Найдено возможное упрощение: заменить X на Y. Результат: ...",
+            "ai",
+          );
+        }, 900);
+      };
+
+      window.chatClear = function chatClear() {
+        chatWindow.innerHTML = "";
+      };
+
+      window.insertPreset = function insertPreset(name) {
+        if (name === "solve")
+          chatInput.value = "Реши задачу и приведи подробные шаги.";
+        if (name === "explain")
+          chatInput.value = "Дай подробный пошаговый разбор.";
+        if (name === "short") chatInput.value = "Краткое решение и ответ.";
+        chatInput.focus();
+      };
+
+      fileInput.addEventListener("change", function (e) {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        appendMessage("Загружено изображение: " + f.name, "user");
+        appendMessage(
+          "Распознаю изображение и извлекаю текст (симуляция)...",
+          "ai",
+        );
+        setTimeout(() => {
+          appendMessage("Найдено условие: (пример) \nРешение: ...", "ai");
+        }, 1200);
+      });
+
+      window.downloadChat = function downloadChat() {
+        const text = Array.from(chatWindow.querySelectorAll("div"))
+          .map((d) => d.innerText)
+          .join("\n\n");
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "chat.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+    })();
+  </script>
+</div>

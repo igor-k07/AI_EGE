@@ -1,0 +1,111 @@
+<div class="w-full max-w-3xl">
+  <h1 class="text-3xl font-extrabold mb-2">Настройки</h1>
+  <p class="text-slate-400 mb-6">
+    Здесь можно изменить тему, уведомления и другие параметры приложения.
+  </p>
+
+  <div
+    class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 space-y-6"
+  >
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="font-bold">Тёмная тема</div>
+        <div class="text-slate-400 text-sm">
+          Переключает тёмную/светлую тему интерфейса
+        </div>
+      </div>
+      <button id="theme-toggle" class="px-4 py-2 bg-slate-700 rounded-xl">
+        Переключить
+      </button>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="font-bold">Уведомления</div>
+        <div class="text-slate-400 text-sm">
+          Включать подсказки и оповещения
+        </div>
+      </div>
+      <label class="inline-flex items-center gap-2">
+        <input
+          id="notif-toggle"
+          type="checkbox"
+          class="form-checkbox h-5 w-5"
+        />
+      </label>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="font-bold">Автосохранение предмета</div>
+        <div class="text-slate-400 text-sm">
+          Запоминать выбранный предмет между сессиями
+        </div>
+      </div>
+      <label class="inline-flex items-center gap-2">
+        <input
+          id="autosave-subject"
+          type="checkbox"
+          class="form-checkbox h-5 w-5"
+        />
+      </label>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button id="save-settings" class="px-4 py-2 bg-green-600 rounded-2xl">
+        Сохранить
+      </button>
+      <button id="reset-settings" class="px-4 py-2 bg-slate-700 rounded-2xl">
+        Сбросить
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const themeToggle = document.getElementById("theme-toggle");
+      const notifToggle = document.getElementById("notif-toggle");
+      const autosaveToggle = document.getElementById("autosave-subject");
+      const saveBtn = document.getElementById("save-settings");
+      const resetBtn = document.getElementById("reset-settings");
+
+      function load() {
+        const dark = localStorage.getItem("prefersDark");
+        if (dark === "0") document.documentElement.classList.remove("dark");
+        else if (dark === "1") document.documentElement.classList.add("dark");
+
+        notifToggle.checked = localStorage.getItem("notifEnabled") !== "0";
+        autosaveToggle.checked =
+          localStorage.getItem("autosaveSubject") === "1";
+      }
+
+      function save() {
+        localStorage.setItem(
+          "prefersDark",
+          document.documentElement.classList.contains("dark") ? "1" : "0",
+        );
+        localStorage.setItem("notifEnabled", notifToggle.checked ? "1" : "0");
+        localStorage.setItem(
+          "autosaveSubject",
+          autosaveToggle.checked ? "1" : "0",
+        );
+        saveBtn.textContent = "Сохранено";
+        setTimeout(() => (saveBtn.textContent = "Сохранить"), 1200);
+      }
+
+      themeToggle.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+      });
+
+      saveBtn.addEventListener("click", save);
+      resetBtn.addEventListener("click", () => {
+        localStorage.removeItem("prefersDark");
+        localStorage.removeItem("notifEnabled");
+        localStorage.removeItem("autosaveSubject");
+        load();
+      });
+
+      document.addEventListener("DOMContentLoaded", load);
+    })();
+  </script>
+</div>

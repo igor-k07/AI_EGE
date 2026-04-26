@@ -240,7 +240,15 @@
             >
               <i class="fa-solid fa-user-circle w-5"></i> Профиль
             </a>
-            <a href="#"> <i class="fa-solid fa-gear w-5"></i> Настройки </a>
+            <a
+              href="#"
+              onclick="
+                event.preventDefault();
+                showPage('settings');
+              "
+            >
+              <i class="fa-solid fa-gear w-5"></i> Настройки
+            </a>
             <div class="separator"></div>
             <a href="#" class="logout">
               <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Выйти
@@ -255,10 +263,10 @@
     >
       <nav class="flex flex-col gap-2 px-4">
         <button
-          onclick="showPage('roadmap')"
+          onclick="showPage('home')"
           class="nav-link active btn-interact flex items-center gap-4 px-6 py-4 rounded-xl text-left"
         >
-          <i class="fa-solid fa-diagram-project w-5"></i> <b>Roadmap</b>
+          <i class="fa-solid fa-house w-5"></i> <b>Главная</b>
         </button>
         <button
           onclick="showPage('tests')"
@@ -278,8 +286,9 @@
         >
           <i class="fa-solid fa-triangle-exclamation w-5"></i> <b>Ошибки</b>
         </button>
+        <!-- settings moved to profile dropdown -->
         <button
-          onclick="showPage('home')"
+          onclick="showPage('chat')"
           class="nav-link opacity-50 btn-interact flex items-center gap-4 px-6 py-4 rounded-xl text-left"
         >
           <i class="fa-solid fa-comments w-5"></i> <b>AI Чат</b>
@@ -338,7 +347,7 @@
         </button>
         <button
           class="w-12 h-12 rounded-full bg-slate-700 text-slate-300 btn-interact"
-          onclick="showPage('home')"
+          onclick="showPage('chat')"
           title="Открыть полноэкранный чат"
         >
           <i class="fa-solid fa-expand"></i>
@@ -482,7 +491,7 @@
           }
           if (aiInputContainer)
             aiInputContainer.style.display =
-              pageId === "home" ? "none" : "block";
+              pageId === "chat" ? "none" : "block";
         }
 
         function switchSubject(event, subjectName) {
